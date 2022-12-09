@@ -1,7 +1,6 @@
-gen/*
-generate/*
-doc/*
-gateway/build/*
+pkg/
+doc/
+openapiv2/
 
 sekura.pb.go
 sekura.pb.gw.go

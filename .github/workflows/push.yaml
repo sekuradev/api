@@ -68,13 +68,13 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: html
-          openapi-file: gen/openapiv2/sekuraapi/v1/sekura.swagger.yaml
+          openapi-file: openapiv2/sekuraapi/v1/sekura.swagger.yaml
 
       - name: Generate Documentation HTML2
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: html2
-          openapi-file: gen/openapiv2/sekuraapi/v1/sekura.swagger.yaml
+          openapi-file: openapiv2/sekuraapi/v1/sekura.swagger.yaml
 
       - name: Prepare pages
         run: |
@@ -95,7 +95,7 @@ jobs:
           mkdir golang
           cp templates/gomodule/go.mod golang
           cp templates/gomodule/go.sum golang
-          cp -r gateway/pkg/sekuraapi golang
+          cp -r pkg/sekuraapi golang
       - name: Deploy
         uses: moodiest/push-to-branch-action@v2.6.0
         env:
