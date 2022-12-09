@@ -18,7 +18,6 @@ jobs:
   check-breaking:
     name: Detect breaking gRPC changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'disabled'
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -31,7 +30,9 @@ jobs:
   generate-gateway:
     name: Generate gateway
     runs-on: ubuntu-latest
-    needs: lint
+    needs:
+      - lint
+      - check-breaking
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -57,16 +58,14 @@ jobs:
       - name: Generate
         run: buf generate
 
-      - name: Generate Documentation
+      - name: Generate Documentation HTML
+        uses: openapi-generators/openapitools-generator-action@v1
+        with:
+          generator: html
+          openapi-file: openapiv2/sekuraapi/v1/sekura.swagger.yaml
+
+      - name: Generate Documentation HTML2
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: html2
-          openapi-file: gen/openapiv2/sekuraapi/v1/sekura.swagger.yaml
-
-      - name: Build gateway
-        uses: docker/build-push-action@v3
-        with:
-          context: gateway
-          target: gateway
-          push: false
-          tags: magmax/sekura-gateway:latest
+          openapi-file: openapiv2/sekuraapi/v1/sekura.swagger.yaml
