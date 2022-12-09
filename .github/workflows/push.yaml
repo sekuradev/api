@@ -94,6 +94,7 @@ jobs:
         run: |
           mkdir golang
           cp templates/gomodule/go.mod golang
+          cp templates/gomodule/go.sum golang
           cp -r gateway/pkg/sekuraapi golang
       - name: Deploy
         uses: moodiest/push-to-branch-action@v2.6.0
