@@ -1,21 +1,18 @@
 BUF?=buf
 PLANTUML?=plantuml
 
-all: gen/python/sekura_grpc.py
-
-gen:
-	mkdir -p gen
+all: openapiv2/sekuraapi/v1/sekura.swagger.yaml
 
 doc:
 	mkdir -p doc
 
-gen/%: sekuraapi/v1/sekura.proto gen
+openapiv2/%: sekuraapi/v1/sekura.proto gen
 	$(BUF) generate
 
-doc/index.html: gen/openapiv2/sekuraapi/v1/sekura.swagger.yaml doc
+doc/index.html: openapiv2/sekuraapi/v1/sekura.swagger.yaml doc
 	docker run --rm -w /local -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/$< -g html2 -o /local/doc
 
-doc/schemas.plantuml: gen/openapiv2/sekura/v1/sekura.swagger.yaml doc
+doc/schemas.plantuml: openapiv2/sekura/v1/sekura.swagger.yaml doc
 	docker run --rm -w /local -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/$< -g plantuml -o /local/doc
 
 doc/schemas.png: doc/schemas.plantuml
@@ -30,3 +27,7 @@ watch-doc:
 
 watch-lint:
 	iwatch -c "~/.local/bin/buf lint" -e close_write -t "sekura.proto" sekuraapi/v1
+
+.PHONY: download-deps
+download-deps:
+

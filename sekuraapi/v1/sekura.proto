@@ -32,47 +32,17 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 //
 // This API is the one Agents should implement.
 service AgentService {
-  // Allows an Agent to register itself. Will require approval.
-  rpc Register(RegisterRequest) returns (RegisterResponse) {
-    option (google.api.http) = {
-      post: "/v1/agent"
-      body: "*"
-    };
-  }
-
-  // Agent endpoint to send user data. Requires the agent to be registered and approved.
+  // Agent endpoint to send user data.
   rpc SetAccess(SetAccessRequest) returns (SetAccessResponse) {
     option (google.api.http) = {
-      post: "/v1/agent/{agent_id=id}/access"
+      post: "/v1/agent/self/access"
       body: "*"
     };
   }
-}
-
-message PresharedSecret {
-  // Secret string
-  bytes secret = 1;
-}
-
-message RegisterRequest{
-  // Preshared secret to be authenticated against the server.
-  PresharedSecret preshared_secret = 1;
-  // Agent internal name
-  string name = 2;
-}
-
-message RegisterResponse{
-  // True if there was any error trying to register.
-  bool error = 1;
 }
 
 message SetAccessRequest{
-  // Preshared secret to be authenticated against the server.
-  PresharedSecret preshared_secret = 1;
-  // Agent id to ask for
-  string agent_id = 2;
-  // List of configured accesses associated to the Agent
-  repeated Access accesses = 3;
+  repeated Access accesses = 2;
 }
 
 message SetAccessResponse {
@@ -84,7 +54,7 @@ message SetAccessResponse {
 
 service UIService {
   // List all available agents
-  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {
+  rpc ListAgents (ListAgentsRequest) returns (stream ListAgentsResponse) {
     option (google.api.http) = {
       get: "/v1/agent"
     };
@@ -92,19 +62,19 @@ service UIService {
   // Set agent status to Approved or Revoked
   rpc SetAgent(SetAgentRequest) returns(SetAgentResponse) {
     option (google.api.http) = {
-      put: "/v1/agent/{id=agent}"
+      put: "/v1/agent/{agent_id=agent}"
     };
   }
 
   // Retrieve the list of employees
-  rpc ListEmployees(ListEmployeesRequest) returns (ListEmployeesResponse) {
+  rpc ListEmployees(ListEmployeesRequest) returns (stream ListEmployeesResponse) {
     option (google.api.http) = {
       get: "/v1/employees"
     };
   }
 
   // Retrieve the list of Accesses for a given Agent
-  rpc ListAccess(ListAccessRequest) returns (ListAccessResponse) {
+  rpc ListAccess(ListAccessRequest) returns (stream ListAccessResponse) {
     option (google.api.http) = {
       get: "/v1/agent/{id=agentid}/access"
     };
@@ -112,22 +82,18 @@ service UIService {
 }
 
 message ListAgentsRequest{
-  // Session token, taken from OIDC server.
-  SessionToken session_token = 1;
 }
 
 message ListAgentsResponse{
-  // List of registered agents
-  repeated Agent agents = 1;
+  // Agents
+  Agent agents = 1;
 }
 
 message SetAgentRequest{
-  // Session token, taken from OIDC server.
-  SessionToken session_token = 1;
-  // Agent ID to be modified
-  string id = 2;
+  // Agent id for the agent to be modified
+  string agent_id = 1;
   // New status for atent
-  string status = 3;
+  string status = 2;
 }
 
 message SetAgentResponse{
@@ -135,32 +101,24 @@ message SetAgentResponse{
 }
 
 message ListEmployeesRequest{
-  // Session token, taken from OIDC server.
-  SessionToken session_token = 1;
 }
 
 message ListEmployeesResponse{
-  repeated Employee employees = 1;
+  Employee employees = 1;
 }
 
 message ListAccessRequest{
-  // Session token, taken from OIDC server.
-  SessionToken session_token = 1;
   // Agent id to ask for
-  string id = 2;
+  string id = 1;
 }
 
 message ListAccessResponse{
-  // List of usages for requested Agent
-  repeated AccessUsage accesses = 1;
+  // Usages for requested Agent
+  AccessUsage accesses = 1;
 }
 
 
 // Shared objects
-
-message SessionToken {
-    bytes token = 1;
-}
 
 message Access{
   string id = 1;
